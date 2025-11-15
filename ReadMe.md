@@ -1,53 +1,11 @@
-Enum role
-    superadmin
-    admin
-    manager
-    custumer
-    
-classe
--user
-    uid 
-    fisrtname
-    lastname
-    mail
-    role
-    uid_enterprise optional
-
--enterprise
-    uid
-    Name
-
--project
-    uid
-    enterprise_uid
-    creator
-    name
-    description
-    status
-    users[]
-
--task
-    uid
-    project_uid optional
-    name
-    status
-    priority
-    deadline time
-    users[]
-
-comment
-    uid
-    content
-    user_uid
-    task_uid
-
-Notification
-    uid
-    content
-    task_uid
-    trigger
-    status
-
-
-
-ea
+MyMind 🧠Une application de gestion de projet Fullstack (React + Node.js/Express).📋 PrérequisAvant de commencer, assurez-vous d'avoir installé :Node.js (v16 ou supérieur recommandé)Git🚀 Installation et Démarrage (Après clonage)Ce projet est divisé en deux parties : server (Backend) et client (Frontend). Il faut installer les dépendances pour les deux.1. Cloner le projetBashgit clone <url_de_votre_repo>
+cd mymind
+2. Installation du Backend (API)Ouvrez un terminal à la racine du projet :Bashcd server
+npm install
+Cela installe : express, cors, nodemon, dotenv.Configuration : Créez un fichier .env dans le dossier server si nécessaire (ex: PORT=5000).3. Installation du Frontend (React)Dans un nouveau terminal (ou revenez en arrière avec cd ..) :Bashcd client
+npm install
+▶️ Lancer l'applicationPour que l'application fonctionne, le Backend et le Frontend doivent tourner en même temps. Il vous faut donc deux terminaux ouverts.Terminal 1 : Lancer le Serveur (Backend)Bashcd server
+npm run dev
+✅ Le serveur démarrera sur http://localhost:5000Terminal 2 : Lancer le Client (Frontend)Bashcd client
+npm run dev
+✅ Vite vous affichera un lien (ex: http://localhost:5173). Cliquez dessus pour voir l'application.🗂 Architecture de la Base de Données (Schema)Voici la structure des données prévue pour le projet.🔐 Rôles (Enum)superadminadminmanagercustomer📦 EntitésUserChampTypeNoteuidStringUnique IDfirstnameStringlastnameStringmailStringUniqueroleEnumVoir rôles ci-dessusuid_enterpriseStringOptionnelEnterpriseChampTypeNoteuidStringUnique IDnameStringProjectChampTypeNoteuidStringenterprise_uidStringFK (Enterprise)creatorStringFK (User)nameStringdescriptionTextstatusStringusersArrayListe des utilisateurs assignésTaskChampTypeNoteuidStringproject_uidStringOptionnelnameStringstatusString(ex: Todo, In Progress, Done)priorityStringdeadlineTimeDate limiteusersArrayUtilisateurs assignés à la tâcheCommentChampTypeNoteuidStringcontentTextuser_uidStringAuteurtask_uidStringTâche concernéeNotificationChampTypeNoteuidStringcontentStringMessagetask_uidStringLien vers la tâchetriggerStringÉvénement déclencheurstatusString(ex: Unread, Read)🛠 Stack TechniqueFrontend : React, ViteBackend : Node.js, ExpressOutils : Nodemon (Hot reload backend), CORS (Cross-Origin Resource Sharing)
