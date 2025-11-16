@@ -1,6 +1,18 @@
 version: '3.8'
 
 services:
+  api:
+    build:
+      context: ./server # Dit à Docker de lire le Dockerfile dans /server
+    ports:
+      - "5000:5000"
+    environment:
+      # L'API utilise cette URL pour trouver la BDD
+      DATABASE_URL: ${DATABASE_URL}
+    depends_on:
+      # Ne démarre pas l'API tant que la BDD n'est pas "healthy"
+      postgresql:
+        condition: service_healthy
   postgresql:
     image: postgres:15-alpine
     environment:
