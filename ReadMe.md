@@ -16,6 +16,7 @@ classe
 -enterprise
     uid
     Name
+    adresse
 
 -project
     uid
