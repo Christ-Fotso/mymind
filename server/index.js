@@ -1,19 +1,20 @@
-const express = require('express');
-const cors = require('cors');
-import dotenv from "dotenv";
-dotenv.config;
-import db_pool from './config/db.js';
+import express from 'express';
+import cors from 'cors';
 
 const app = express();
 const PORT = 5000;
 
 // Middleware
-app.use(cors()); // Important pour que le React (port 5173) puisse parler à l'Express (port 5000)
+app.use(cors());
 app.use(express.json());
 
 // Route de base pour tester
-app.get('/', async (req, res) => {
-    const result =await db_pool.querry('select current_database()');
+app.get('/', (req, res) => {
+    res.json({ 
+        project: "mymind",
+        status: "online", 
+        message: "Bienvenue sur l'API de mymind" 
+    });
 });
 
 // Lancement
