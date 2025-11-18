@@ -1,5 +1,5 @@
 // Fichier : ./src/models/Tenant.js
-class Tenant {
+class Enterprise {
 
   constructor(prismaTenant) {
     if (!prismaTenant || !prismaTenant.id) {
@@ -23,4 +23,4 @@ class Tenant {
   }
 }
 
-module.exports = Tenant;
+module.exports = Enterprise;

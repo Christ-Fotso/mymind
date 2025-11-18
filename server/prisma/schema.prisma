@@ -47,6 +47,7 @@ model Enterprise {
   address   String?
   createdAt DateTime  @default(now())
   projects  Project[]
+
 }
 
 model Task {
@@ -99,3 +100,9 @@ model Notification {
   createdAt DateTime @default(now())
 }
 
+// Définition des rôles dans le système
+//enum Role {
+// ADMIN       // Gestion du tenant (utilisateurs, paramètres d'entreprise)
+//MANAGER     // Supervision de projets et d'autres collaborateurs
+//COLLABORATOR // Travail sur les tâches
+//}
