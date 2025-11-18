@@ -26,6 +26,10 @@ model User {
   passwordResetTokens PasswordResetToken[]
   comments            Comment[]
   notifications       Notification[]
+  role                String
+  enterpriseId        String?
+  enterprise          Enterprise?          @relation(fields: [enterpriseId], references: [id])
+  tasks               Task[]
 }
 
 model Project {
@@ -47,7 +51,7 @@ model Enterprise {
   address   String?
   createdAt DateTime  @default(now())
   projects  Project[]
-
+  users     User[]
 }
 
 model Task {
@@ -61,6 +65,8 @@ model Task {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   comments    Comment[]
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id])
 }
 
 model RefreshToken {
