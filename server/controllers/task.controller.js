@@ -1,120 +1,163 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const bcrypt = require('bcryptjs');
 
-// --- 1. Récupérer toutes les tâches d'un projet spécifique ---
-const getTasksByProject = async (req, res) => {
-    try {
-        // Supposons que l'ID du projet est passé dans les paramètres de l'URL
-        const { projectId } = req.params;
-        
-        // Vérification de l'existence du projet (facultatif mais bonne pratique)
-        const project = await prisma.project.findUnique({ where: { id: projectId } });
-        if (!project) {
-            return res.status(404).json({ error: "Projet non trouvé" });
-        }
 
-        const tasks = await prisma.task.findMany({
-            where: { projectId: projectId },
-            // Inclure les commentaires ou l'utilisateur assigné si nécessaire
-            include: { comments: true } 
-        });
-        res.status(200).json(tasks);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
-// --- 2. Récupérer une tâche par ID ---
+// ---Récupérer une tâche par ID---
 const getTaskById = async (req, res) => {
     try {
         const { id } = req.params;
+
         const task = await prisma.task.findUnique({
-            where: { id: id },
-            include: { comments: true } // Inclure les commentaires associés
+            where: { id },
+            include: {
+                comments: {
+                    include: { user: true }
+                },
+                project: true,
+                user: {   // L'utilisateur assigné
+                    select: { id: true, firstName: true, lastName: true, email: true }
+                }
+            }
         });
 
-        if (!task) {
-            return res.status(404).json({ error: "Tâche non trouvée" });
-        }
+        if (!task) return res.status(404).json({ error: "Tâche non trouvée" });
+
         res.status(200).json(task);
+
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
-// --- 3. Créer une nouvelle tâche ---
+
+
+// ---Créer une tâche---
 const createTask = async (req, res) => {
     try {
-        // projectId est requis pour lier la tâche au projet
-        const { title, description, dueDate, projectId } = req.body; 
+        const { title, description, dueDate, projectId, userId } = req.body;
 
         if (!title || !projectId) {
-            return res.status(400).json({ error: "Titre et ID du projet sont requis" });
+            return res.status(400).json({ error: "Titre et projectId sont requis" });
+        }
+
+        // Vérifier si l'utilisateur assigné existe (optionnel)
+        if (userId) {
+            const userExists = await prisma.user.findUnique({
+                where: { id: userId }
+            });
+            if (!userExists) {
+                return res.status(404).json({ error: "Utilisateur assigné non trouvé" });
+            }
         }
 
         const newTask = await prisma.task.create({
             data: {
                 title,
                 description,
-                dueDate: dueDate ? new Date(dueDate) : null, // Convertir la date si elle existe
                 projectId,
-                // Le statut par défaut est défini dans le schéma Prisma ("PENDING")
+                userId,
+                dueDate: dueDate ? new Date(dueDate) : null
+            },
+            include: {
+                user: true
             }
         });
+
         res.status(201).json(newTask);
+
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
-// --- 4. Mettre à jour une tâche ---
+
+
+// ---Mettre à jour une tâche---
 const updateTask = async (req, res) => {
     try {
         const { id } = req.params;
-        // Permet de mettre à jour le titre, la description, le statut, la date limite, etc.
-        const { title, description, status, dueDate } = req.body; 
+        const { title, description, status, dueDate, userId } = req.body;
+
+        // Vérifier si nouveau user assigné existe
+        if (userId) {
+            const userExists = await prisma.user.findUnique({
+                where: { id: userId }
+            });
+            if (!userExists) {
+                return res.status(404).json({ error: "Utilisateur assigné non trouvé" });
+            }
+        }
 
         const updatedTask = await prisma.task.update({
-            where: { id: id },
+            where: { id },
             data: {
                 title,
                 description,
                 status,
-                dueDate: dueDate ? new Date(dueDate) : undefined, // undefined pour ignorer si non fourni
-                updatedAt: new Date()
+                userId,
+                dueDate: dueDate ? new Date(dueDate) : undefined,
+            },
+            include: {
+                user: true
             }
         });
+
         res.status(200).json(updatedTask);
+
     } catch (error) {
-        // Gérer l'erreur si l'ID n'est pas trouvé (P2025 de Prisma)
-        if (error.code === 'P2025') {
+        if (error.code === "P2025") {
             return res.status(404).json({ error: "Tâche non trouvée" });
         }
         res.status(500).json({ error: error.message });
     }
 };
 
-// --- 5. Supprimer une tâche ---
+
+
+// ---Supprimer une tâche---
 const deleteTask = async (req, res) => {
     try {
         const { id } = req.params;
-        await prisma.task.delete({
-            where: { id: id }
-        });
-        res.status(204).send(); // 204 No Content pour une suppression réussie
+
+        await prisma.task.delete({ where: { id } });
+
+        res.status(200).json({ message: "Tâche supprimée avec succès" });
+
     } catch (error) {
-        if (error.code === 'P2025') {
+        if (error.code === "P2025") {
             return res.status(404).json({ error: "Tâche non trouvée" });
         }
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
+
+// ---Obtenir le projet associé---
+const getProjectByTaskId = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const task = await prisma.task.findUnique({
+            where: { id },
+            include: { project: true }
+        });
+
+        if (!task) return res.status(404).json({ error: "Tâche non trouvée" });
+
+        res.status(200).json(task.project);
+
+    } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
 
 module.exports = {
-    getTasksByProject,
     getTaskById,
     createTask,
     updateTask,
-    deleteTask
+    deleteTask,
+    getProjectByTaskId
 };

@@ -1,16 +1,17 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const bcrypt = require('bcryptjs');
 
-// --- 1. Récupérer toutes les notifications d'un utilisateur ---
+// ---Récupérer toutes les notifications d'un utilisateur---
 const getNotificationsByUser = async (req, res) => {
     try {
         // Supposons que l'ID de l'utilisateur est extrait de l'authentification
-        // **À faire plus tard :** Extraire `userId` de `req.user` après authentification JWT.
+        // À faire plus tard : Extraire `userId` de `req.user` après authentification JWT.
         const { userId } = req.params; // ou req.user.id
 
         const notifications = await prisma.notification.findMany({
             where: { userId: userId },
-            // Trier par date de création (du plus récent au plus ancien)
+           
             orderBy: { createdAt: 'desc' } 
         });
         res.status(200).json(notifications);
@@ -19,7 +20,7 @@ const getNotificationsByUser = async (req, res) => {
     }
 };
 
-// --- 2. Marquer une notification comme lue ---
+// ---Marquer une notification comme lue---
 const markNotificationAsRead = async (req, res) => {
     try {
         const { id } = req.params;
@@ -37,7 +38,7 @@ const markNotificationAsRead = async (req, res) => {
     }
 };
 
-// --- 3. Marquer toutes les notifications d'un utilisateur comme lues ---
+// ---Marquer toutes les notifications d'un utilisateur comme lues---
 const markAllNotificationsAsRead = async (req, res) => {
     try {
         // Supposons que l'ID de l'utilisateur est extrait de l'authentification
@@ -58,7 +59,7 @@ const markAllNotificationsAsRead = async (req, res) => {
     }
 };
 
-// **Note sur la création de notifications :** // La création de notifications est généralement déclenchée par des événements dans d'autres contrôleurs (ex: createTask, createComment, updateTask).
+// La création de notifications est généralement déclenchée par des événements dans d'autres contrôleurs (ex: createTask, createComment, updateTask).
 // Par exemple, après la création d'une tâche, le contrôleur `task.controller.js` pourrait appeler une fonction utilitaire pour créer la notification.
 // Nous n'incluons donc pas de `createNotification` ici, mais une fonction utilitaire serait nécessaire pour cela.
 

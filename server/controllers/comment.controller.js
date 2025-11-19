@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const bcrypt = require('bcryptjs');
 
 // --- 1. Récupérer tous les commentaires d'une tâche ---
 const getCommentsByTask = async (req, res) => {
