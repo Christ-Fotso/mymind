@@ -22,6 +22,19 @@ const getUserById = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+ const getUserByEmail_and_password = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const user = await prisma.user.findUnique({
+            where: { email: email,
+                password: password
+             }
+        });
+    }
+    catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+ }
 const createUser = async (req, res) => {
     try {
         const { email, password, firstName, lastName } = req.body;
@@ -78,5 +91,6 @@ module.exports = {
     getUserById,
     createUser,
     deleteUser,
-    updateUser
+    updateUser,
+    getUserByEmail_and_password
 };

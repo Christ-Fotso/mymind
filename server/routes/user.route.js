@@ -5,7 +5,11 @@ const router = express.Router();
 const { 
     getAllUsers, 
     getUserById, 
-    createUser 
+    createUser,
+    deleteUser,
+    updateUser,
+    getNotificationsByUser,
+    markNotificationAsRead
 } = require('../controllers/users.controller');
 
 // Définition des URL
